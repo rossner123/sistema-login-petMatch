@@ -2,7 +2,7 @@
     import dotenv from "dotenv"
     import cors from "cors"
 
-    import login from "./routes/login.js"
+    import users from "../routes/users.js"
 
     dotenv.config()
 
@@ -10,7 +10,7 @@
     app.use(express.json())
     app.use(cors())
 
-    app.use("/login", login)
+    app.use("/users", users)
 
     app.listen(3000, () => {
         console.log("Rodando...")
