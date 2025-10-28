@@ -47,4 +47,18 @@ router.post("/login", (req, res) => {
     }
   })
 
+  router.post("/forgot-password", async (req, res) => {
+    const { newPassword, email } = req.body
+
+    const hashed = await bcrypt.hash(newPassword, 10)
+
+    const sql = 'UPDATE users SET password = $1 WHERE email = $2 RETURNING *'
+    const result = await pool.query(sql, [hashed, email])
+    if(result.rows.length === 0) {
+      return res.status(404).json({ error: "erro: email não encontrado" })
+    }
+
+    res.status(201).json(result.rows[0])
+  })
+
 export default router
