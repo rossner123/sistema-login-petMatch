@@ -1,7 +1,18 @@
+import express from "express"
 import pool from "../src/db.js"
 import bcrypt from "bcrypt"
+import multer from "multer"
 import { Router } from "express"
 const router = Router()
+
+router.use('/uploads', express.static('uploads'))
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, 'uploads/'),
+  filename: (req, file, cb) => cb(null, Date.now())
+})
+
+const upload = multer({ storage })
 
 router.get("/", async (req, res) => {
   const sql = "SELECT * FROM users"
@@ -59,6 +70,21 @@ router.post("/login", (req, res) => {
     }
 
     res.status(201).json(result.rows[0])
+  })
+
+  router.post("/:id/profile-image", upload.single('arquivo'), (req, res) => {
+    try {
+      const userId = req.params.id;
+      const { filename } = req.file
+
+      const sql = 'UPDATE users SET profile_pic = $1 WHERE id = $2 RETURNING *'
+      const result = pool.query(sql, [filename, userId])
+
+      res.json(result.rows)
+    } catch(err) {
+      res.status(500).json({ error: err.message })
+      console.error(err)
+    }
   })
 
 export default router
