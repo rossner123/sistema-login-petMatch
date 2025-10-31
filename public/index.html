@@ -1,16 +1,55 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+  <meta charset="UTF-8">
+  <title>Upload de Imagem de Perfil</title>
 </head>
 <body>
-    <form id="uploadForm" enctype="multipart/form-data">
-        <input type="file" name="arquivo" id="arquivo" accept="image/*" required>
-        <button type="submit">Enviar</button>
-    </form>
+  <h2>Upload de Imagem de Perfil</h2>
 
-    <script src="../src/script.js"></script>
+  <form id="uploadForm">
+    <label for="userId">ID do Usuário:</label>
+    <input type="text" id="userId" name="id" required><br><br>
+
+    <label for="arquivo">Escolha a imagem:</label>
+    <input type="file" id="arquivo" name="arquivo" accept="image/*" required><br><br>
+
+    <button type="submit">Enviar</button>
+  </form>
+
+  <div id="resultado"></div>
+
+  <script>
+    const form = document.getElementById('uploadForm');
+    const resultado = document.getElementById('resultado');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const id = document.getElementById('userId').value;
+      const arquivo = document.getElementById('arquivo').files[0];
+
+      const formData = new FormData();
+      formData.append('arquivo', arquivo);
+
+      try {
+        const res = await fetch(`http://localhost:3000/users/${id}/profile-image`, {
+          method: 'POST',
+          body: formData
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+          resultado.textContent = 'Upload realizado com sucesso!';
+          console.log('Resposta do servidor:', data);
+        } else {
+          resultado.textContent = 'Erro: ' + (data.error || 'Falha ao enviar o arquivo.');
+        }
+      } catch (err) {
+        resultado.textContent = 'Erro na requisição: ' + err.message;
+      }
+    });
+  </script>
 </body>
 </html>
